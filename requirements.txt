@@ -7,4 +7,3 @@ scikit-learn
 babel
 currency_converter 
 boto3
-
