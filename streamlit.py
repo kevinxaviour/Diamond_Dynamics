@@ -1,18 +1,54 @@
 import pandas as pd
 import numpy as np
 import joblib
-import pickle
+import io
+import os
 from currency_converter import CurrencyConverter
 import streamlit as st
 from babel.numbers import format_currency
+import boto3
+
+bucket_name = "forestclassification"  
+AWS_ACCESS_KEY_ID= os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY= os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION=  os.getenv("AWS_DEFAULT_REGION")
+ENCODER_KEY=os.getenv("ENCODER_KEY")         
+REG_MODEL_KEY=os.getenv("REG_MODEL_KEY")         
+PCA_KEY=os.getenv("PCA_KEY")         
+SCALER_KEY=os.getenv("SCALER_KEY")         
+CLUSTER_MODEL_KEY=os.getenv("CLUSTER_MODEL_KEY")         
 
 
-with open('encoders.pkl','rb') as file:
-    encoders=pickle.load(file)
-regmodel = joblib.load('randomforestmodel.pkl')
-cluspca=joblib.load('clupca.pkl')
-clusss=joblib.load('cluscaler.pkl')
-clusmod=joblib.load('clukmeans.pkl')
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_DEFAULT_REGION
+)
+
+@st.cache_resource
+def load_all_from_s3():
+    # Load Encoders
+    encoders_obj = s3.get_object(Bucket=bucket_name, Key=ENCODER_KEY)
+    encoders = joblib.load(io.BytesIO(encoders_obj['Body'].read()))
+    #Regression Model
+    reg_obj=s3.get_object(Bucket=bucket_name,Key=REG_MODEL_KEY)
+    regmodel=joblib.load(io.BytesIO(reg_obj['Body'].read()))
+    #PCA For Clustering
+    pca_obj=s3.get_object(Bucket=bucket_name,Key=PCA_KEY)
+    cluspca=joblib.load(io.BytesIO(pca_obj['Body'].read()))
+    #Standard Scaler For Clustering
+    ss_obj=s3.get_object(Bucket=bucket_name,Key=SCALER_KEY)
+    clusss=joblib.load(io.BytesIO(ss_obj['Body'].read()))
+    #Kmeans Model Clustering
+    cm_obj=s3.get_object(Bucket=bucket_name,Key=CLUSTER_MODEL_KEY)
+    clusmod=joblib.load(io.BytesIO(cm_obj['Body'].read()))
+
+    return encoders, regmodel, cluspca, clusss,clusmod
+
+
+encoders, regmodel, cluspca, clusss,clusmod=load_all_from_s3()
+
 st.title("Diamond Price Predication and Clustering")
 col1, col2 = st.columns(2)
 with col1:
@@ -86,3 +122,4 @@ cluster_labels = {
 }
 label = cluster_labels[pred]
 st.metric("Belongs to Cluster",f"{label}", f"{formatted_price}",border=True)#:,.2f
+
