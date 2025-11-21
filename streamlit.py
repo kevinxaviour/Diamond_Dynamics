@@ -56,7 +56,7 @@ encoders, regmodel, cluspca, clusss,clusmod,winsdepth=load_all_from_s3()
 st.title("Diamond Price Predication and Clustering")
 col1, col2 = st.columns(2)
 with col1:
-    Carat_slider = st.slider("Carat (drag)", 0.10, 5.20)
+    Carat_slider = st.slider("Carat (drag)", 0.10, 5.20,0.21)
 with col2:
     Carat_input = st.number_input("Carat (type)", 0.10, 5.20, Carat_slider)
 
@@ -110,12 +110,12 @@ new_data['cut_encoded']=encoders['cut'].transform([new_data['cut']])[0][0]
 new_data['clarity_encoded']=encoders['clarity'].transform([new_data['clarity']])[0][0]
 new_data['color_encoded']=encoders['color'].transform([new_data['color']])[0][0]
 model_df=new_data[['carat','cut_encoded', 'clarity_encoded', 'color_encoded','depth']]
-st.write(model_df)
+# st.write(model_df)
 model_df['log_carat']=np.log1p(model_df['carat'])
 model_df[['depth_ws']] = winsdepth.transform(model_df[['depth']])
 model_df = model_df.drop(columns=['carat','depth'])
 model_df = model_df[['log_carat','cut_encoded','clarity_encoded','color_encoded','depth_ws']]
-st.write(model_df)
+# st.write(model_df)
 x_scaled = regmodel['xscaler'].transform(model_df)
 y_pred_scaled = regmodel['model'].predict(x_scaled)
 price = regmodel['yscaler'].inverse_transform(y_pred_scaled)
@@ -134,3 +134,4 @@ cluster_labels = {
 }
 label = cluster_labels[pred]
 st.metric("Belongs to Cluster",f"{label}", f"{formatted_price}",border=True)#:,.2f
+
