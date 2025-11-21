@@ -7,3 +7,4 @@ tensorflow
 babel
 currencyconverter 
 boto3
+feature-engine
