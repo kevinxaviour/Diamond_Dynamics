@@ -16,7 +16,8 @@ ENCODER_KEY=os.getenv("ENCODER_KEY")
 REG_MODEL_KEY=os.getenv("REG_MODEL_KEY")         
 PCA_KEY=os.getenv("PCA_KEY")         
 SCALER_KEY=os.getenv("SCALER_KEY")         
-CLUSTER_MODEL_KEY=os.getenv("CLUSTER_MODEL_KEY")         
+CLUSTER_MODEL_KEY=os.getenv("CLUSTER_MODEL_KEY")
+DEPTH_TRANSFORM=os.getenv("DEPTH_TRANSFORM")
 
 
 s3 = boto3.client(
@@ -43,11 +44,14 @@ def load_all_from_s3():
     #Kmeans Model Clustering
     cm_obj=s3.get_object(Bucket=bucket_name,Key=CLUSTER_MODEL_KEY)
     clusmod=joblib.load(io.BytesIO(cm_obj['Body'].read()))
+    #winsorizer_for_depth Column
+    cm_obj=s3.get_object(Bucket=bucket_name,Key=DEPTH_TRANSFORM)
+    winsdepth=joblib.load(io.BytesIO(cm_obj['Body'].read()))
 
-    return encoders, regmodel, cluspca, clusss,clusmod
+    return encoders, regmodel, cluspca, clusss,clusmod,winsdepth
 
 
-encoders, regmodel, cluspca, clusss,clusmod=load_all_from_s3()
+encoders, regmodel, cluspca, clusss,clusmod,winsdepth=load_all_from_s3()
 
 st.title("Diamond Price Predication and Clustering")
 col1, col2 = st.columns(2)
@@ -57,33 +61,33 @@ with col2:
     Carat_input = st.number_input("Carat (type)", 0.10, 5.20, Carat_slider)
 
 cut_options = encoders['cut'].categories_[0].tolist()
-cut_input = st.selectbox("Select Cut", cut_options)
+cut_input = st.selectbox("Select Cut", cut_options,3)
 clarity_options=encoders['clarity'].categories_[0].tolist()
-clarity_inpurt=st.selectbox("Select Clarity",clarity_options)
+clarity_inpurt=st.selectbox("Select Clarity",clarity_options,2)
 color_options=encoders['color'].categories_[0].tolist()
-color_inpurt=st.selectbox("Select Color",color_options)
+color_inpurt=st.selectbox("Select Color",color_options,1)
 
 col1, col2 = st.columns(2)
 with col1:
-    Table_slider = st.slider("Table (drag)", 43.0, 95.0)
+    Table_slider = st.slider("Table (drag)", 43.0, 95.0,62.17)
 with col2:
     Table_input = st.number_input("Table (type)", 43.0, 95.0, Table_slider)
 
 col1, col2 = st.columns(2)
 with col1:
-    X_slider = st.slider("X (drag)", 3.00, 11.00)
+    X_slider = st.slider("X (drag)", 3.00, 11.00,3.89)
 with col2:
     X_input = st.number_input("X (type)", 3.00, 11.00, X_slider)
 
 col1, col2 = st.columns(2)
 with col1:
-    Y_slider = st.slider("Y (drag)", 3.00, 11.00)
+    Y_slider = st.slider("Y (drag)", 3.00, 11.00,3.84)
 with col2:
     Y_input = st.number_input("Y (type)", 3.00, 11.00, Y_slider)
 
 col1, col2 = st.columns(2)
 with col1:
-    Z_slider = st.slider("Z (drag)", 1.00, 31.00)
+    Z_slider = st.slider("Z (drag)", 1.00, 31.00,2.31)
 with col2:
     Z_input = st.number_input("Z (type)", 1.00, 31.00, Z_slider)
 depth_value = round((Z_input / ((X_input + Y_input) / 2)) * 100, 1)
@@ -105,8 +109,16 @@ new_data = pd.DataFrame([{
 new_data['cut_encoded']=encoders['cut'].transform([new_data['cut']])[0][0]
 new_data['clarity_encoded']=encoders['clarity'].transform([new_data['clarity']])[0][0]
 new_data['color_encoded']=encoders['color'].transform([new_data['color']])[0][0]
-model_df=new_data[['carat','cut_encoded', 'clarity_encoded', 'color_encoded','depth', 'table']]
-price=regmodel.predict(model_df)
+model_df=new_data[['carat','cut_encoded', 'clarity_encoded', 'color_encoded','depth']]
+st.write(model_df)
+model_df['log_carat']=np.log1p(model_df['carat'])
+model_df[['depth_ws']] = winsdepth.transform(model_df[['depth']])
+model_df = model_df.drop(columns=['carat','depth'])
+model_df = model_df[['log_carat','cut_encoded','clarity_encoded','color_encoded','depth_ws']]
+st.write(model_df)
+x_scaled = regmodel['xscaler'].transform(model_df)
+y_pred_scaled = regmodel['model'].predict(x_scaled)
+price = regmodel['yscaler'].inverse_transform(y_pred_scaled)
 c = CurrencyConverter()
 inr_price=c.convert(price,'USD','INR')
 formatted_price = format_currency(inr_price, "INR", locale="en_IN")
@@ -122,4 +134,3 @@ cluster_labels = {
 }
 label = cluster_labels[pred]
 st.metric("Belongs to Cluster",f"{label}", f"{formatted_price}",border=True)#:,.2f
-
