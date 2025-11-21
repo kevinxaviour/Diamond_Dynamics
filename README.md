@@ -44,8 +44,8 @@
     - Hierarchical Clustering
     - Density Based Clustering
     - Gaussian Mixture
-  <img width="401" height="91" alt="image" src="https://github.com/user-attachments/assets/6d27505d-d0d7-4aa4-9134-f65e739d84e8" />
   - Saved The model with best Silhoutte Score in a Pickle File
+<img width="401" height="91" alt="image" src="https://github.com/user-attachments/assets/6d27505d-d0d7-4aa4-9134-f65e739d84e8" />
 - S3 Bucket 
   - Saved all the encoders and models in the S3 Bucket.
   <img width="1119" height="395" alt="image" src="https://github.com/user-attachments/assets/6d5e1923-56aa-429e-b141-88e62409271e" />
