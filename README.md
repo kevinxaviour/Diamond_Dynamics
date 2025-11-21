@@ -31,7 +31,8 @@
     - Gradient Boost Regressor
     - Xg Boost Regressor
     - ANN
-<img width="218" height="243" alt="image" src="https://github.com/user-attachments/assets/010258fc-4a45-402a-878f-d9446ae25207" />
+<img width="761" height="339" alt="image" src="https://github.com/user-attachments/assets/fda717ff-10ce-448c-b4c4-ff1e040e5b37" />
+
 
   - Saved the Best Performing Model in a Pickle File
 - Clustering Model [cluster_model.ipynb](https://github.com/kevinxaviour/Diamond_Dynamics/blob/5d032700a39103fbf55febeefc75ac3a5b00af42/cluster_model.ipynb)
@@ -47,7 +48,8 @@
   - Saved The model with best Silhoutte Score in a Pickle File
 - S3 Bucket 
   - Saved all the encoders and models in the S3 Bucket.
-  <img width="1199" height="395" alt="image" src="https://github.com/user-attachments/assets/96c61664-0907-4400-b286-e467fcd1aab1" />
+  <img width="1119" height="395" alt="image" src="https://github.com/user-attachments/assets/6d5e1923-56aa-429e-b141-88e62409271e" />
+
 
 - Streamlit UI (Application)[https://diamonddynamics.streamlit.app/]
   - Retrieved all the files from S3 bucket for final predictions.
