@@ -1,4 +1,4 @@
-# Diamond Dynamics
+# Diamond Dynamics [Streamlit App](https://diamonddynamics.streamlit.app/)
 
 ### Project Takeaways:
 - Data Cleaning & Preprocessing
@@ -55,7 +55,7 @@
   <img width="1119" height="395" alt="image" src="https://github.com/user-attachments/assets/6d5e1923-56aa-429e-b141-88e62409271e" />
 
 
-- Streamlit UI (Application)[https://diamonddynamics.streamlit.app/]
+- Streamlit UI (Application) [streamlit.py](https://github.com/kevinxaviour/Diamond_Dynamics/blob/5d032700a39103fbf55febeefc75ac3a5b00af42/streamlit.py)
   - Retrieved all the files from S3 bucket for final predictions.
   - Created Input Features with sliders and number input boxes
   - Predicted the input values
