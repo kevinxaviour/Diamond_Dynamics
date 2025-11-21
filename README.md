@@ -31,6 +31,8 @@
     - Gradient Boost Regressor
     - Xg Boost Regressor
     - ANN
+      - Mean Squared Error Loss Function
+      - Huber Loss Function 
 <img width="761" height="339" alt="image" src="https://github.com/user-attachments/assets/fda717ff-10ce-448c-b4c4-ff1e040e5b37" />
 
 
